@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>science.aist.neo4j</groupId>
+        <artifactId>neo4j</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>neo4j-driver</artifactId>
+
+    <properties>
+        <neo4j.embedded>3.3.1</neo4j.embedded>
+        <neo4j.driver>4.0.1</neo4j.driver>
+        <neo4j.version>3.2.11</neo4j.version>
+        <spring.version>5.0.2.RELEASE</spring.version>
+        <neo4j.sleep>30</neo4j.sleep>
+        <maven.test.failure.ignore>true</maven.test.failure.ignore>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.neo4j.driver</groupId>
+            <artifactId>neo4j-java-driver</artifactId>
+            <version>${neo4j.driver}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.neo4j</groupId>
+            <artifactId>neo4j-ogm-core</artifactId>
+            <version>${neo4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+
+        <!-- test dependencies -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <version>${spring.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- testng -->
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <version>7.1.0</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-simple -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.7.26</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.mockito/mockito-core -->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>3.1.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>science.aist.seshat</groupId>
+            <artifactId>api</artifactId>
+            <version>1.0.1</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${surefire.version}</version>
+                <configuration>
+                    <systemPropertyVariables>
+                        <seshat.loglevel>WARN</seshat.loglevel>
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>science.aist.neo4j</groupId>
+                <artifactId>neo4j-preprocessor</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+                <executions>
+                    <execution>
+                        <id>processNeo4JClasses</id>
+                        <phase>process-test-classes</phase>
+                        <goals>
+                            <goal>namespace</goal>
+                        </goals>
+                        <configuration>
+                            <packageList>
+                                science.aist.neo4j.it.deep,science.aist.neo4j.it.mapRelations,science.aist.neo4j.it.namespace,science.aist.neo4j.it.diffspace,science.aist.neo4j.it.dummy,science.aist.neo4j.it.dynamic.domain
+                            </packageList>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>localdocker</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>${surefire.version}</version>
+                        <configuration>
+                            <excludes>
+                                <exclude>**/it/**</exclude>
+                            </excludes>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>integration-test</id>
+                                <goals>
+                                    <goal>test</goal>
+                                </goals>
+                                <phase>integration-test</phase>
+                                <configuration>
+                                    <excludes>
+                                        <exclude>none</exclude>
+                                    </excludes>
+                                    <suiteXmlFiles>
+                                        <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
+                                    </suiteXmlFiles>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>1.8</version>
+                        <executions>
+                            <!-- pre integration test execute to start up docker container -->
+                            <execution>
+                                <id>start-docker</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <tasks>
+                                        <!-- login with AIST read-only dockerhub account -->
+                                        <exec executable="docker" failonerror="false">
+                                            <!-- specify the docker container stop command -->
+                                            <arg value="login" />
+                                            <arg value="-u" />
+                                            <arg value="docker_client" />
+                                            <arg value="-p" />
+                                            <arg value="zMdDNxyr655MWq2f" />
+                                            <arg value="aist.fh-hagenberg.at:18444/repository/docker-util/" />
+                                        </exec>
+                                        <!-- stop the docker container if something failed and a old one is running -->
+                                        <exec executable="docker" failonerror="false">
+                                            <!-- specify the docker container stop command -->
+                                            <arg value="container" />
+                                            <arg value="stop" />
+                                            <!-- specify the name of the container to stop -->
+                                            <arg value="neo4j-graph-db" />
+                                        </exec>
+                                        <echo message="Starting docker container up..." />
+                                        <!-- Start the docker container, if this command fails let the build fail -->
+                                        <exec executable="docker" failonerror="true">
+                                            <!-- Specific the docker container run command -->
+                                            <arg value="container" />
+                                            <arg value="run" />
+                                            <!-- remove the container after it stops -->
+                                            <arg value="--rm" />
+                                            <!-- start it as a daemon, to let it run in the background -->
+                                            <arg value="-d" />
+                                            <!-- name the container -->
+                                            <arg value="--name" />
+                                            <arg value="neo4j-graph-db" />
+                                            <!-- Expose the ports -->
+                                            <arg value="-p" />
+                                            <arg value="7474:7474" />
+                                            <arg value="-p" />
+                                            <arg value="7687:7687" /><!--7687-->
+                                            <!-- Set the environment variable for username and password -->
+                                            <arg value="-e" />
+                                            <arg value="NEO4J_AUTH=neo4j/spring" />
+                                            <!-- specify the image name -->
+                                            <arg value="aist.fh-hagenberg.at:18444/repository/docker-util/aist-neo4j-with-apoc:latest" />
+                                        </exec>
+                                        <!-- I have no glue on how to wait for the container to start up.-->
+                                        <!-- Just write on the console, that we are waiting 10s for the container to start up -->
+                                        <echo message="Waiting 20 seconds to let neo4j start up..." />
+                                        <!-- Just sleep 10sec, this should be enough for the container to start up, if not increase it -->
+                                        <sleep seconds="20" />
+                                    </tasks>
+                                </configuration>
+                            </execution>
+
+                            <!-- post integration test execute to shut down docker container -->
+                            <execution>
+                                <id>stop-docker</id>
+                                <phase>post-integration-test</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <tasks>
+                                        <!-- stop the docker container, it gets removed automatically, as we specified the "rm" flag above -->
+                                        <exec executable="docker">
+                                            <!-- specify the docker container stop command -->
+                                            <arg value="container" />
+                                            <arg value="stop" />
+                                            <!-- specify the name of the container to stop -->
+                                            <arg value="neo4j-graph-db" />
+                                        </exec>
+                                    </tasks>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>jenkins</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-resources-plugin</artifactId>
+                        <version>2.4</version>
+                        <executions>
+                            <execution>
+                                <id>config-copy.xml</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>copy-resources</goal>
+                                </goals>
+                                <configuration>
+                                    <overwrite>true</overwrite>
+                                    <outputDirectory>${basedir}/target/test-classes/</outputDirectory>
+                                    <resources>
+                                        <resource>
+                                            <directory>${basedir}/src/test/resources/jenkins/</directory>
+                                        </resource>
+                                    </resources>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>${surefire.version}</version>
+                        <configuration>
+                            <excludes>
+                                <exclude>**/it/**</exclude>
+                            </excludes>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>integration-test</id>
+                                <goals>
+                                    <goal>test</goal>
+                                </goals>
+                                <phase>integration-test</phase>
+                                <configuration>
+                                    <excludes>
+                                        <exclude>none</exclude>
+                                    </excludes>
+                                    <suiteXmlFiles>
+                                        <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
+                                    </suiteXmlFiles>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>

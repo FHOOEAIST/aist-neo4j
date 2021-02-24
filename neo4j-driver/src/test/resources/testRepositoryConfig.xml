@@ -1,0 +1,335 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.1.xsd
+       http://www.springframework.org/schema/util
+       http://www.springframework.org/schema/util/spring-util.xsd">
+
+    <import resource="classpath*:repositoryConfig.xml"/>
+    <import resource="driver-url.xml"/>
+
+    <bean id="converterMap" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <property name="targetClass" value="science.aist.neo4j.reflective.converter.ConverterProvider"/>
+        <property name="targetMethod" value="init"/>
+        <property name="arguments">
+            <util:map id="converterMap" key-type="java.lang.Class" value-type="java.lang.Class">
+                <entry key="science.aist.neo4j.it.nodes.Point"
+                       value="science.aist.neo4j.it.converter.PointConverter"/>
+            </util:map>
+        </property>
+    </bean>
+
+    <bean id="driver" class="org.neo4j.driver.GraphDatabase" factory-method="driver" destroy-method="close">
+        <constructor-arg ref="url"/>
+        <constructor-arg ref="authToken"/>
+    </bean>
+
+    <bean id="nodiestNodeRepository"
+          class="science.aist.neo4j.reflective.ReflectiveNeo4JNodeRepositoryImpl">
+        <qualifier type="science.aist.neo4j.it.nodes.NodiestNode"/>
+        <constructor-arg name="manager" ref="transactionManager"/>
+        <constructor-arg value="science.aist.neo4j.it.nodes.NodiestNode"/>
+    </bean>
+
+
+    <bean id="analyticsRepository" class="science.aist.neo4j.reflective.ReflectiveNeo4JNodeRepositoryImpl">
+        <qualifier type="science.aist.neo4j.it.nodes.AnalyticsNode"/>
+        <constructor-arg value="science.aist.neo4j.it.nodes.AnalyticsNode"/>
+        <constructor-arg name="manager" ref="transactionManager"/>
+        <property name="repositories">
+            <util:map map-class="java.util.HashMap" key-type="java.lang.Class"
+                      value-type="science.aist.neo4j.reflective.ReflectiveNeo4JNodeRepositoryImpl">
+            </util:map>
+        </property>
+    </bean>
+
+    <bean id="bnalyticsRepository"
+          class="science.aist.neo4j.reflective.ReflectiveNeo4JNodeRepositoryImpl">
+        <qualifier type="science.aist.neo4j.it.nodes.BnalyticsNode"/>
+        <constructor-arg value="science.aist.neo4j.it.nodes.BnalyticsNode"/>
+        <constructor-arg name="manager" ref="transactionManager"/>
+        <property name="repositories">
+            <util:map map-class="java.util.HashMap" key-type="java.lang.Class"
+                      value-type="science.aist.neo4j.reflective.ReflectiveNeo4JNodeRepositoryImpl">
+                <entry key="science.aist.neo4j.it.nodes.AnalyticsNode"
+                       value-ref="analyticsRepository"/>
+            </util:map>
+        </property>
+    </bean>
+
+    <bean id="relationshipRepository"
+          class="science.aist.neo4j.reflective.ReflectiveNeo4JRelationshipRepositoryImpl">
+        <qualifier type="science.aist.neo4j.it.nodes.RelatedRelationship"/>
+        <constructor-arg value="science.aist.neo4j.it.nodes.RelatedRelationship"/>
+        <constructor-arg name="manager" ref="transactionManager"/>
+        <property name="sourceRepository" ref="bnalyticsRepository"/>
+        <property name="targetRepository" ref="bnalyticsRepository"/>
+    </bean>
+
+    <bean id="fieldRelationshipRepository"
+          class="science.aist.neo4j.reflective.ReflectiveNeo4JRelationshipRepositoryImpl">
+        <qualifier type="science.aist.neo4j.it.nodes.FieldRelationship"/>
+        <constructor-arg value="science.aist.neo4j.it.nodes.FieldRelationship"/>
+        <constructor-arg name="manager" ref="transactionManager"/>
+        <property name="sourceRepository" ref="testNodeRepository"/>
+        <property name="targetRepository" ref="bnalyticsRepository"/>
+    </bean>
+
+    <bean id="multiFieldRelationshipRepository"
+          class="science.aist.neo4j.reflective.ReflectiveNeo4JRelationshipRepositoryImpl">
+        <qualifier type="science.aist.neo4j.it.nodes.MultiFieldRelationship"/>
+        <constructor-arg value="science.aist.neo4j.it.nodes.MultiFieldRelationship"/>
+        <constructor-arg name="manager" ref="transactionManager"/>
+        <property name="sourceRepository" ref="testNodeRepository"/>
+        <property name="targetRepository" ref="bnalyticsRepository"/>
+    </bean>
+
+
+    <bean id="testNodeRepository"
+          class="science.aist.neo4j.reflective.ReflectiveNeo4JNodeRepositoryImpl">
+        <qualifier type="science.aist.neo4j.it.nodes.TestNode"/>
+        <constructor-arg value="science.aist.neo4j.it.nodes.TestNode"/>
+        <constructor-arg name="manager" ref="transactionManager"/>
+        <property name="repositories">
+            <util:map map-class="java.util.HashMap" key-type="java.lang.Class"
+                      value-type="science.aist.neo4j.reflective.ReflectiveNeo4JNodeRepositoryImpl">
+                <entry key="science.aist.neo4j.it.nodes.FieldRelationship"
+                       value-ref="fieldRelationshipRepository"/>
+                <entry key="science.aist.neo4j.it.nodes.MultiFieldRelationship"
+                       value-ref="multiFieldRelationshipRepository"/>
+            </util:map>
+        </property>
+    </bean>
+
+    <bean id="rootRepository"
+          class="science.aist.neo4j.namespace.NamespaceAwareReflectiveNeo4JNodeRepositoryImpl">
+        <qualifier type="science.aist.neo4j.it.namespace.RootNode"/>
+        <constructor-arg value="science.aist.neo4j.it.namespace.RootNode"/>
+        <constructor-arg name="manager" ref="transactionManager"/>
+        <property name="repositories">
+            <util:map map-class="java.util.HashMap" key-type="java.lang.Class"
+                      value-type="science.aist.neo4j.reflective.ReflectiveNeo4JNodeRepositoryImpl">
+                <entry key="science.aist.neo4j.it.nodes.AnalyticsNode"
+                       value-ref="analyticsRepository"/>
+            </util:map>
+        </property>
+    </bean>
+
+    <bean id="bootRepository"
+          class="science.aist.neo4j.namespace.NamespaceAwareReflectiveNeo4JNodeRepositoryImpl">
+        <qualifier type="science.aist.neo4j.it.namespace.BootNode"/>
+        <constructor-arg value="science.aist.neo4j.it.namespace.BootNode"/>
+        <constructor-arg name="manager" ref="transactionManager"/>
+        <property name="repositories">
+            <util:map map-class="java.util.HashMap" key-type="java.lang.Class"
+                      value-type="science.aist.neo4j.reflective.ReflectiveNeo4JNodeRepositoryImpl">
+                <entry key="science.aist.neo4j.it.nodes.AnalyticsNode"
+                       value-ref="analyticsRepository"/>
+                <entry key="science.aist.neo4j.it.nodes.BnalyticsNode"
+                       value-ref="bnalyticsRepository"/>
+            </util:map>
+        </property>
+        <property name="relationshipOverrides">
+            <util:map map-class="java.util.HashMap" key-type="java.lang.String"
+                      value-type="java.lang.Class">
+                <entry key="analytics" value="science.aist.neo4j.it.nodes.BnalyticsNode"/>
+                <entry key="DYNAMICTYPETEST" value="science.aist.neo4j.it.nodes.BnalyticsNode"/>
+            </util:map>
+        </property>
+    </bean>
+
+    <bean id="aRepository"
+          class="science.aist.neo4j.namespace.NamespaceAwareReflectiveNeo4JNodeRepositoryImpl">
+        <qualifier type="science.aist.neo4j.it.namespace.a.NamespaceA"/>
+        <constructor-arg value="science.aist.neo4j.it.namespace.a.NamespaceA"/>
+        <constructor-arg name="manager" ref="transactionManager"/>
+        <property name="repositories">
+            <util:map map-class="java.util.HashMap" key-type="java.lang.Class"
+                      value-type="science.aist.neo4j.reflective.ReflectiveNeo4JNodeRepositoryImpl">
+            </util:map>
+        </property>
+    </bean>
+
+    <bean id="bRepository"
+          class="science.aist.neo4j.namespace.NamespaceAwareReflectiveNeo4JNodeRepositoryImpl">
+        <qualifier type="science.aist.neo4j.it.namespace.b.NamespaceB"/>
+        <constructor-arg value="science.aist.neo4j.it.namespace.b.NamespaceB"/>
+        <constructor-arg name="manager" ref="transactionManager"/>
+        <property name="repositories">
+            <util:map map-class="java.util.HashMap" key-type="java.lang.Class"
+                      value-type="science.aist.neo4j.reflective.ReflectiveNeo4JNodeRepositoryImpl">
+            </util:map>
+        </property>
+    </bean>
+
+    <bean id="cRepository"
+          class="science.aist.neo4j.namespace.NamespaceAwareReflectiveNeo4JNodeRepositoryImpl">
+        <qualifier type="science.aist.neo4j.it.diffspace.c.NamespaceC"/>
+        <constructor-arg value="science.aist.neo4j.it.diffspace.c.NamespaceC"/>
+        <constructor-arg name="manager" ref="transactionManager"/>
+        <property name="repositories">
+            <util:map map-class="java.util.HashMap" key-type="java.lang.Class"
+                      value-type="science.aist.neo4j.reflective.ReflectiveNeo4JNodeRepositoryImpl">
+            </util:map>
+        </property>
+    </bean>
+
+    <bean id="nodeWithExtensionsRepository"
+          class="science.aist.neo4j.namespace.NamespaceAwareReflectiveNeo4JNodeRepositoryImpl">
+        <qualifier type="science.aist.neo4j.it.namespace.NodeWithExtensions"/>
+        <constructor-arg value="science.aist.neo4j.it.namespace.NodeWithExtensions"/>
+        <constructor-arg name="manager" ref="transactionManager"/>
+        <property name="repositories">
+            <util:map map-class="java.util.HashMap" key-type="java.lang.Class"
+                      value-type="science.aist.neo4j.reflective.ReflectiveNeo4JNodeRepositoryImpl">
+            </util:map>
+        </property>
+    </bean>
+
+    <!-- Query Normal or typed tests -->
+    <bean id="reflectiveRepoA" class="science.aist.neo4j.reflective.ReflectiveNeo4JNodeRepositoryImpl">
+        <qualifier type="science.aist.neo4j.it.dynamic.domain.A"/>
+        <constructor-arg value="science.aist.neo4j.it.dynamic.domain.A"/>
+        <constructor-arg name="manager" ref="transactionManager"/>
+        <property name="repositories" ref="repositories"/>
+    </bean>
+
+    <bean id="reflectiveRepoB" class="science.aist.neo4j.reflective.ReflectiveNeo4JNodeRepositoryImpl">
+        <qualifier type="science.aist.neo4j.it.dynamic.domain.B"/>
+        <constructor-arg value="science.aist.neo4j.it.dynamic.domain.B"/>
+        <constructor-arg name="manager" ref="transactionManager"/>
+        <property name="repositories" ref="repositories"/>
+    </bean>
+
+    <bean id="reflectiveRepoC" class="science.aist.neo4j.reflective.ReflectiveNeo4JNodeRepositoryImpl">
+        <qualifier type="science.aist.neo4j.it.dynamic.domain.C"/>
+        <constructor-arg value="science.aist.neo4j.it.dynamic.domain.C"/>
+        <constructor-arg name="manager" ref="transactionManager"/>
+        <property name="repositories" ref="repositories"/>
+    </bean>
+
+    <bean id="reflectiveRepoD" class="science.aist.neo4j.reflective.ReflectiveNeo4JNodeRepositoryImpl">
+        <qualifier type="science.aist.neo4j.it.dynamic.domain.D"/>
+        <constructor-arg value="science.aist.neo4j.it.dynamic.domain.D"/>
+        <constructor-arg name="manager" ref="transactionManager"/>
+        <property name="repositories" ref="repositories"/>
+    </bean>
+
+    <bean id="reflectiveRepoE" class="science.aist.neo4j.reflective.ReflectiveNeo4JNodeRepositoryImpl">
+        <qualifier type="science.aist.neo4j.it.dynamic.domain.E"/>
+        <constructor-arg value="science.aist.neo4j.it.dynamic.domain.E"/>
+        <constructor-arg name="manager" ref="transactionManager"/>
+        <property name="repositories" ref="repositories"/>
+    </bean>
+
+
+    <bean id="reflectiveRepoLine" class="science.aist.neo4j.reflective.ReflectiveNeo4JNodeRepositoryImpl">
+        <qualifier type="science.aist.neo4j.it.nodes.LineNode"/>
+        <constructor-arg value="science.aist.neo4j.it.nodes.LineNode"/>
+        <constructor-arg name="manager" ref="transactionManager"/>
+    </bean>
+
+    <bean id="complexRelationshipParentRepository"
+          class="science.aist.neo4j.reflective.ReflectiveNeo4JNodeRepositoryImpl"
+          depends-on="complexRelationshipChildRepository">
+        <qualifier type="science.aist.neo4j.it.mapRelations.ComplexRelationshipParentNode"/>
+        <constructor-arg value="science.aist.neo4j.it.mapRelations.ComplexRelationshipParentNode"/>
+        <constructor-arg name="manager" ref="transactionManager"/>
+        <property name="repositories">
+            <util:map map-class="java.util.HashMap" key-type="java.lang.Class"
+                      value-type="science.aist.neo4j.reflective.ReflectiveNeo4JNodeRepositoryImpl">
+                <entry key="science.aist.neo4j.it.mapRelations.ComplexRelationshipChildNode"
+                       value-ref="complexRelationshipChildRepository"/>
+            </util:map>
+        </property>
+    </bean>
+
+    <bean id="complexRelationshipChildRepository"
+          class="science.aist.neo4j.reflective.ReflectiveNeo4JNodeRepositoryImpl">
+        <qualifier type="science.aist.neo4j.it.mapRelations.ComplexRelationshipChildNode"/>
+        <constructor-arg value="science.aist.neo4j.it.mapRelations.ComplexRelationshipChildNode"/>
+        <constructor-arg name="manager" ref="transactionManager"/>
+    </bean>
+
+    <util:map id="repositories">
+        <entry value-ref="reflectiveRepoA">
+            <key>
+                <bean class="java.lang.Class" factory-method="forName">
+                    <constructor-arg value="science.aist.neo4j.it.dynamic.domain.A"/>
+                </bean>
+            </key>
+        </entry>
+        <entry value-ref="reflectiveRepoB">
+            <key>
+                <bean class="java.lang.Class" factory-method="forName">
+                    <constructor-arg value="science.aist.neo4j.it.dynamic.domain.B"/>
+                </bean>
+            </key>
+        </entry>
+        <entry value-ref="reflectiveRepoC">
+            <key>
+                <bean class="java.lang.Class" factory-method="forName">
+                    <constructor-arg value="science.aist.neo4j.it.dynamic.domain.C"/>
+                </bean>
+            </key>
+        </entry>
+        <entry value-ref="reflectiveRepoD">
+            <key>
+                <bean class="java.lang.Class" factory-method="forName">
+                    <constructor-arg value="science.aist.neo4j.it.dynamic.domain.D"/>
+                </bean>
+            </key>
+        </entry>
+        <entry value-ref="reflectiveRepoE">
+            <key>
+                <bean class="java.lang.Class" factory-method="forName">
+                    <constructor-arg value="science.aist.neo4j.it.dynamic.domain.E"/>
+                </bean>
+            </key>
+        </entry>
+    </util:map>
+
+    <bean id="topRepository"
+          class="science.aist.neo4j.namespace.NamespaceAwareReflectiveNeo4JNodeRepositoryImpl">
+        <qualifier type="science.aist.neo4j.it.deep.Top"/>
+        <constructor-arg value="science.aist.neo4j.it.deep.Top"/>
+        <constructor-arg name="manager" ref="transactionManager"/>
+        <property name="repositories">
+            <util:map map-class="java.util.HashMap" key-type="java.lang.Class"
+                      value-type="science.aist.neo4j.reflective.ReflectiveNeo4JNodeRepositoryImpl">
+                <entry key="science.aist.neo4j.it.deep.Middle"
+                       value-ref="middleRepository"/>
+            </util:map>
+        </property>
+    </bean>
+
+    <bean id="middleRepository"
+          class="science.aist.neo4j.namespace.NamespaceAwareReflectiveNeo4JNodeRepositoryImpl">
+        <qualifier type="science.aist.neo4j.it.deep.Middle"/>
+        <constructor-arg value="science.aist.neo4j.it.deep.Middle"/>
+        <constructor-arg name="manager" ref="transactionManager"/>
+        <property name="repositories">
+            <util:map map-class="java.util.HashMap" key-type="java.lang.Class"
+                      value-type="science.aist.neo4j.reflective.ReflectiveNeo4JNodeRepositoryImpl">
+                <entry key="science.aist.neo4j.it.deep.Top"
+                       value-ref="topRepository"/>
+                <entry key="science.aist.neo4j.it.deep.Bottom"
+                       value-ref="bottomRepository"/>
+            </util:map>
+        </property>
+    </bean>
+
+    <bean id="bottomRepository"
+          class="science.aist.neo4j.namespace.NamespaceAwareReflectiveNeo4JNodeRepositoryImpl">
+        <qualifier type="science.aist.neo4j.it.deep.Bottom"/>
+        <constructor-arg value="science.aist.neo4j.it.deep.Bottom"/>
+        <constructor-arg name="manager" ref="transactionManager"/>
+        <property name="repositories">
+            <util:map map-class="java.util.HashMap" key-type="java.lang.Class"
+                      value-type="science.aist.neo4j.reflective.ReflectiveNeo4JNodeRepositoryImpl">
+                <entry key="science.aist.neo4j.it.deep.Middle"
+                       value-ref="middleRepository"/>
+            </util:map>
+        </property>
+    </bean>
+</beans>
