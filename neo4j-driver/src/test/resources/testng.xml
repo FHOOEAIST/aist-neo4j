@@ -1,0 +1,8 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+<suite name="integration">
+    <test name="test suite" parallel="none" group-by-instances="true">
+        <packages>
+            <package name="science.aist.neo4j.*" />
+        </packages>
+    </test>
+</suite>

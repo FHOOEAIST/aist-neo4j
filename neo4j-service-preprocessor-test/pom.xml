@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>science.aist.neo4j</groupId>
+        <artifactId>neo4j</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>neo4j-service-preprocessor-test</artifactId>
+
+
+    <dependencies>
+        <dependency>
+            <groupId>science.aist.neo4j</groupId>
+            <artifactId>neo4j-driver</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>science.aist.neo4j</groupId>
+            <artifactId>neo4j-service-preprocessor</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+        <!-- testng -->
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <version>7.1.0</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-simple -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.7.26</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>science.aist.neo4j</groupId>
+                <artifactId>neo4j-service-preprocessor</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+                <executions>
+                    <execution>
+                        <id>processNeo4JClasses</id>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>transaction-service</goal>
+                        </goals>
+                        <configuration>
+                            <packageList>
+                                science.aist.neo4j.service
+                            </packageList>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
+    </build>
+
+</project>

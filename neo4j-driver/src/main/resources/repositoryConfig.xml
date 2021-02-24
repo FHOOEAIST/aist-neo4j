@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.1.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+    <!-- default repository for neo4j -->
+
+    <bean id="authToken" class="org.neo4j.driver.AuthTokens" factory-method="basic">
+        <constructor-arg name="username" value="neo4j"/>
+        <constructor-arg name="password" value="spring"/>
+    </bean>
+
+    <bean id="driver" class="org.neo4j.driver.GraphDatabase" factory-method="driver" destroy-method="close">
+        <constructor-arg type="java.lang.String" value="bolt://localhost:7687"/>
+        <constructor-arg ref="authToken"/>
+    </bean>
+
+    <bean id="transactionManager" class="science.aist.neo4j.transaction.TransactionManagerImpl">
+        <property name="driver" ref="driver"/>
+    </bean>
+
+    <bean id="mapRelationshipTransactionManager"
+          class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <property name="targetClass" value="science.aist.neo4j.reflective.MapRelationshipInformation"/>
+        <property name="targetMethod" value="setManagers"/>
+        <property name="arguments">
+            <ref bean="transactionManagers"/>
+        </property>
+    </bean>
+
+    <bean id="arrayRelationshipTransactionManager"
+          class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <property name="targetClass" value="science.aist.neo4j.reflective.ArrayRelationshipInformation"/>
+        <property name="targetMethod" value="setManagers"/>
+        <property name="arguments">
+            <ref bean="transactionManagers"/>
+        </property>
+    </bean>
+
+    <util:list id="transactionManagers" value-type="science.aist.neo4j.transaction.TransactionManagerImpl">
+        <ref bean="transactionManager"/>
+    </util:list>
+</beans>
