@@ -4,7 +4,7 @@
 
     <groupId>science.aist.neo4j</groupId>
     <artifactId>neo4j</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1-SNAPSHOT</version>
 
     <packaging>pom</packaging>
 
@@ -42,7 +42,7 @@
         <connection>scm:git:git@github.com:FHOOEAIST/aist-neo4j.git</connection>
         <url>https://github.com/FHOOEAIST/aist-neo4j</url>
         <developerConnection>scm:git:git@github.com:FHOOEAIST/aist-neo4j.git</developerConnection>
-        <tag>aist-neo4j-1.0.0</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <distributionManagement>
