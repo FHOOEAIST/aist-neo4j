@@ -48,4 +48,4 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 If you are going to use this project as part of a research paper, we would ask you to reference this project by citing
 it. 
 
---TODO zenodo doi--
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4704243.svg)](https://doi.org/10.5281/zenodo.4704243)
