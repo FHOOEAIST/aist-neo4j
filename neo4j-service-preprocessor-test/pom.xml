@@ -3,7 +3,7 @@
     <parent>
         <groupId>science.aist.neo4j</groupId>
         <artifactId>neo4j</artifactId>
-        <version>1.0.0</version>
+        <version>1.0.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -14,12 +14,12 @@
         <dependency>
             <groupId>science.aist.neo4j</groupId>
             <artifactId>neo4j-driver</artifactId>
-            <version>1.0.0</version>
+            <version>1.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>science.aist.neo4j</groupId>
             <artifactId>neo4j-service-preprocessor</artifactId>
-            <version>1.0.0</version>
+            <version>1.0.1-SNAPSHOT</version>
         </dependency>
         <!-- testng -->
         <dependency>
@@ -42,7 +42,7 @@
             <plugin>
                 <groupId>science.aist.neo4j</groupId>
                 <artifactId>neo4j-service-preprocessor</artifactId>
-                <version>1.0.0</version>
+                <version>1.0.1-SNAPSHOT</version>
                 <executions>
                     <execution>
                         <id>processNeo4JClasses</id>
