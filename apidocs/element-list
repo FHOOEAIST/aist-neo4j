@@ -1,0 +1,13 @@
+science.aist.neo4j
+science.aist.neo4j.annotation
+science.aist.neo4j.annotations
+science.aist.neo4j.dynamic
+science.aist.neo4j.namespace
+science.aist.neo4j.namespace.annotations
+science.aist.neo4j.reflective
+science.aist.neo4j.reflective.converter
+science.aist.neo4j.reflective.converter.arrayprimitive
+science.aist.neo4j.repository
+science.aist.neo4j.service
+science.aist.neo4j.transaction
+science.aist.neo4j.util

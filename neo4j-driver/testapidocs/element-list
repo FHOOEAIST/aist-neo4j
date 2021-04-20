@@ -1,0 +1,14 @@
+org.testng.internal
+science.aist.neo4j.it
+science.aist.neo4j.it.converter
+science.aist.neo4j.it.deep
+science.aist.neo4j.it.diffspace.c
+science.aist.neo4j.it.dummy
+science.aist.neo4j.it.dynamic
+science.aist.neo4j.it.dynamic.domain
+science.aist.neo4j.it.mapRelations
+science.aist.neo4j.it.namespace
+science.aist.neo4j.it.namespace.a
+science.aist.neo4j.it.namespace.b
+science.aist.neo4j.it.nodes
+science.aist.neo4j.repository

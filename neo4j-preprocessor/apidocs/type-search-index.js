@@ -1,0 +1,1 @@
+typeSearchIndex = [{"l":"All Classes","url":"allclasses-index.html"},{"p":"science.aist.neo4j","l":"HelpMojo"},{"p":"science.aist.neo4j","l":"Neo4JNamespacePreprocessorMojo"}]
