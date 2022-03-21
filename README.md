@@ -55,3 +55,7 @@ If you are going to use this project as part of a research paper, we would ask y
 it. 
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4704243.svg)](https://doi.org/10.5281/zenodo.4704243)
+
+Additionally, this work was used in the following publications:
+
+ - [Praschl, C. (2019). Erkennung von Informationsverlust in der Modelltransformation.](https://zenodo.org/record/4450043)
