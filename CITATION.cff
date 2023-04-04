@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Pointner"
+  given-names: "Andreas"
+  email: "andreas.pointner@fh-hagenberg.at"
+  orcid: "https://orcid.org/0000-0001-8642-1161"
+  affiliation: "Advanced Information Systems and Technology"
+- family-names: "Praschl"
+  given-names: "Christoph"
+  email: "christoph.praschl@fh-hagenberg.at"
+  orcid: "https://orcid.org/0000-0002-9711-4818"
+  affiliation: "Advanced Information Systems and Technology"
+- family-names: "Krauss"
+  given-names: "Oliver"
+  email: "oliver.krauss@fh-hagenberg.at"
+  orcid: "https://orcid.org/0000-0002-8136-2606"
+  affiliation: "Advanced Information Systems and Technology"
+title: "AIST Neo4j"
+version: 1.0.0
+date-released: 2021-04-20
+doi: 10.5281/zenodo.4704243
+license: MPL-2.0
+url: "https://github.com/FHOOEAIST/aist-neo4j"
